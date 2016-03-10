@@ -106,7 +106,7 @@ public class ServerConnection extends Thread {
 //        writer.println("Expires: "+date.getTime());
 //            pout.println("Content-Length: "+sbResponse.length()*2);
 //            pout.println("Content-Type: text/html; charset=8859_1");
-        writer.println("Content-Type: text/plain; charset=UTF-8");
+        writer.println("Content-Type: text/html; charset=UTF-8");
         writer.println("");
 
     }
