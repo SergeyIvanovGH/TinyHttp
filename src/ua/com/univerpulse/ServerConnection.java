@@ -11,19 +11,11 @@ import java.net.SocketException;
  */
 public class ServerConnection extends Thread {
     private Socket client;
-<<<<<<< HEAD
-    private static int connectionNumber = 0;
-=======
->>>>>>> 180e46832073fa7cc13384e4f8b05b8cf70cea59
     private BufferedReader reader;
     private PrintWriter writer;
 
     ServerConnection(Socket client) throws SocketException {
         this.client = client;
-<<<<<<< HEAD
-        this.connectionNumber++;
-=======
->>>>>>> 180e46832073fa7cc13384e4f8b05b8cf70cea59
     }
 
     @Override
@@ -36,24 +28,11 @@ public class ServerConnection extends Thread {
             reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
             writer = new PrintWriter(new OutputStreamWriter(client.getOutputStream()), true);
 
-<<<<<<< HEAD
-            System.out.println("Получили Request от клиента " + connectionNumber);
-=======
             System.out.println("Получили Request от клиента ");
->>>>>>> 180e46832073fa7cc13384e4f8b05b8cf70cea59
             String requestURI = getRequestURIFromRequestLine(); // Получим ссылку в запросе
 //            System.out.println("RequestURI: " + requestURI);
             System.out.println();
 
-<<<<<<< HEAD
-            System.out.println("Отправляем Response клиенту "+connectionNumber);
-            System.out.println();
-
-            System.out.println("Формирование заголовка ... ");
-            saveResponseHeader();
-
-            System.out.println("Формирование тела ... ");
-=======
             System.out.println("Отправляем Response клиенту ");
             System.out.println();
 
@@ -64,7 +43,6 @@ public class ServerConnection extends Thread {
             // Формирование HTML-заголовка тела
 			pushResponseHTMLHeader();
 
->>>>>>> 180e46832073fa7cc13384e4f8b05b8cf70cea59
             if (requestURI.contains("calculate")) {
                 // Подсчитаем результат операции
                 int result = saveCalculateResult(requestURI);
@@ -74,34 +52,21 @@ public class ServerConnection extends Thread {
                 file.getFile(writer, requestURI);
             }
 
-<<<<<<< HEAD
-            System.out.println();
-            System.out.println("Закроем соединение с клиентом " + connectionNumber);
-=======
 			// Формирование HTML-подвала тела
 			pushResponseHTMLFooter();
 
             System.out.println();
             System.out.println("Закроем соединение с клиентом ");
->>>>>>> 180e46832073fa7cc13384e4f8b05b8cf70cea59
 
             reader.close();
             writer.close();
         } catch (IOException e) {
-<<<<<<< HEAD
-            System.out.println("Ошибка ввода/вывода " + e);;
-=======
             System.out.println("Ошибка ввода/вывода " + e);
->>>>>>> 180e46832073fa7cc13384e4f8b05b8cf70cea59
         } finally {
             try {
                 client.close();
             } catch (IOException e) {
-<<<<<<< HEAD
-                System.out.println("Ошибка закрытия соединения клиента "+e);;
-=======
                 System.out.println("Ошибка закрытия соединения клиента "+e);
->>>>>>> 180e46832073fa7cc13384e4f8b05b8cf70cea59
             }
         }
     }
@@ -112,21 +77,6 @@ public class ServerConnection extends Thread {
 //        System.out.println("Full request line is "+requestURI);
 
         String[] partsRequestLine = requestURI.split(" ");
-<<<<<<< HEAD
-//        for (String parts : partsRequestLine) {
-//            System.out.println(parts);
-//        }
-
-//        Matcher get = Pattern.compile("GET /?(\\S*).*").matcher(requestURI);
-//
-//        if (get.matches()) {
-//            requestURI = get.group(1);
-//            if (requestURI.endsWith("/") || requestURI.equals("")) {
-//                requestURI = "/web/index.html";
-//            }
-//        }
-=======
->>>>>>> 180e46832073fa7cc13384e4f8b05b8cf70cea59
         requestURI = partsRequestLine[1];
 
         return requestURI;
@@ -140,24 +90,14 @@ public class ServerConnection extends Thread {
                 System.out.println(request);
             }
         } catch (IOException e) {
-<<<<<<< HEAD
-            System.out.println("Ошибка ввода/вывода " + e);;
-        } catch (NullPointerException e) {
-            System.out.println("Ошибка " + e);;
-=======
             System.out.println("Ошибка ввода/вывода " + e);
         } catch (NullPointerException e) {
             System.out.println("Ошибка " + e);
->>>>>>> 180e46832073fa7cc13384e4f8b05b8cf70cea59
         }
         System.out.println("Заголовок прочитан.");
     }
 
-<<<<<<< HEAD
-    private void saveResponseHeader() {
-=======
     private void pushResponseHeader() {
->>>>>>> 180e46832073fa7cc13384e4f8b05b8cf70cea59
 //        Calendar date = Calendar.getInstance();
 
         writer.println("HTTP/1.1 200 OK");
@@ -166,42 +106,25 @@ public class ServerConnection extends Thread {
 //        writer.println("Expires: "+date.getTime());
 //            pout.println("Content-Length: "+sbResponse.length()*2);
 //            pout.println("Content-Type: text/html; charset=8859_1");
-<<<<<<< HEAD
-        writer.println("Content-Type: text/plain; charset=UTF-8");
-=======
         writer.println("Content-Type: text/html; charset=UTF-8");
->>>>>>> 180e46832073fa7cc13384e4f8b05b8cf70cea59
         writer.println("");
 
     }
 
-<<<<<<< HEAD
-    private void saveResponseSimpleBody() {
-=======
     private void pushResponseHTMLHeader() {
->>>>>>> 180e46832073fa7cc13384e4f8b05b8cf70cea59
         StringBuilder sbResponse = new StringBuilder();
 
         sbResponse.append("<!DOCTYPE html>");
         sbResponse.append("<html><head><title>TinyHttpServer</title></head>");
         sbResponse.append("<body>");
-<<<<<<< HEAD
-        sbResponse.append("Сервер ответил Ok на запрос номер ");
-        sbResponse.append(connectionNumber);
-        sbResponse.append("</body></html>");
-=======
->>>>>>> 180e46832073fa7cc13384e4f8b05b8cf70cea59
 
         writer.println(sbResponse.toString());
     }
 
-<<<<<<< HEAD
-=======
     private void pushResponseHTMLFooter() {
         writer.println("</body></html>");
     }
 
->>>>>>> 180e46832073fa7cc13384e4f8b05b8cf70cea59
     private int saveCalculateResult(String requestURI) {
         // Распарсим строку http://localhost:8000/calculate?operation=add&operand1=5&operand2=10
         String str = requestURI.substring(requestURI.indexOf("?")+1);
