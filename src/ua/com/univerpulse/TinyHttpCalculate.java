@@ -23,8 +23,26 @@ public class TinyHttpCalculate {
         this.operand1 = operand1;
     }
 
+<<<<<<< HEAD
     public int add(){ return operand1 + operand2 ;};
     public int mul(){ return operand1 * operand2 ;};
     public int div(){ return operand1 / operand2 ;};
     public int sub(){ return operand1 - operand2 ;};
+=======
+    public int add() {
+        return operand1 + operand2;
+    }
+
+    public int mul() {
+        return operand1 * operand2;
+    }
+
+    public int div() {
+        return operand1 / operand2;
+    }
+
+    public int sub() {
+        return operand1 - operand2;
+    }
+>>>>>>> 180e46832073fa7cc13384e4f8b05b8cf70cea59
 }

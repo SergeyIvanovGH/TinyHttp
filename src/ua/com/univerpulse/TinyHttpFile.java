@@ -34,7 +34,11 @@ public class TinyHttpFile {
         } catch(FileNotFoundException e) {
             System.out.println("File is absent " + e);
         } catch (IOException e) {
+<<<<<<< HEAD
             System.out.println(e);
+=======
+            System.out.println("Ошибка ввода/вывода " + e);
+>>>>>>> 180e46832073fa7cc13384e4f8b05b8cf70cea59
         }
     }
 }
