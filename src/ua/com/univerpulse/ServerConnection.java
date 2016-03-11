@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.HashMap;
 
 /**
  * Created by svivanov on 08.03.16.
@@ -21,52 +22,31 @@ public class ServerConnection extends Thread {
     @Override
     public void run() {
         try {
-//            BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-//            OutputStream out = client.getOutputStream();
-//            PrintWriter pout = new PrintWriter(new OutputStreamWriter(client.getOutputStream()), true);
-
             reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
             writer = new PrintWriter(new OutputStreamWriter(client.getOutputStream()), true);
 
-            System.out.println("Получили Request от клиента ");
-            String requestURI = getRequestURIFromRequestLine(); // Получим ссылку в запросе
-//            System.out.println("RequestURI: " + requestURI);
-            System.out.println();
-
-            System.out.println("Отправляем Response клиенту ");
-            System.out.println();
-
-            System.out.println("Формирование заголовка ... ");
+            String requestURI = getRequestURIFromRequestLine();
             pushResponseHeader();
-
-            System.out.println("Формирование тела ... ");
-            // Формирование HTML-заголовка тела
 			pushResponseHTMLHeader();
 
             if (requestURI.contains("calculate")) {
-                // Подсчитаем результат операции
-                int result = saveCalculateResult(requestURI);
-                writer.println("Результат выполнения операции равно: " + result);
+                int result = saveCalculateResult8(requestURI);
+                writer.println("The result of the operation is: " + result);
             } else {
                 TinyHttpFile file = new TinyHttpFile();
                 file.getFile(writer, requestURI);
             }
-
-			// Формирование HTML-подвала тела
 			pushResponseHTMLFooter();
-
-            System.out.println();
-            System.out.println("Закроем соединение с клиентом ");
 
             reader.close();
             writer.close();
         } catch (IOException e) {
-            System.out.println("Ошибка ввода/вывода " + e);
+            System.out.println("Input/Output error: " + e);
         } finally {
             try {
                 client.close();
             } catch (IOException e) {
-                System.out.println("Ошибка закрытия соединения клиента "+e);
+                System.out.println("Error closing connection: "+e);
             }
         }
     }
@@ -74,7 +54,6 @@ public class ServerConnection extends Thread {
     private String getRequestURIFromRequestLine() throws IOException {
         String requestURI = "/";
         requestURI = reader.readLine();
-//        System.out.println("Full request line is "+requestURI);
 
         String[] partsRequestLine = requestURI.split(" ");
         requestURI = partsRequestLine[1];
@@ -83,32 +62,24 @@ public class ServerConnection extends Thread {
     }
 
     private void showRequestHeader() {
-        System.out.println("Заголовок содержит:");
+        System.out.println("Request consist of:");
         String request;
         try {
             while(!(request = reader.readLine()).isEmpty()) {
                 System.out.println(request);
             }
         } catch (IOException e) {
-            System.out.println("Ошибка ввода/вывода " + e);
+            System.out.println("Input/Output error: " + e);
         } catch (NullPointerException e) {
-            System.out.println("Ошибка " + e);
+            System.out.println("Error: " + e);
         }
-        System.out.println("Заголовок прочитан.");
+        System.out.println("Request read");
     }
 
     private void pushResponseHeader() {
-//        Calendar date = Calendar.getInstance();
-
         writer.println("HTTP/1.1 200 OK");
-//        writer.println("Date: "+date.getTime());
-//        date.add(Calendar.MINUTE, 1);
-//        writer.println("Expires: "+date.getTime());
-//            pout.println("Content-Length: "+sbResponse.length()*2);
-//            pout.println("Content-Type: text/html; charset=8859_1");
         writer.println("Content-Type: text/html; charset=UTF-8");
         writer.println("");
-
     }
 
     private void pushResponseHTMLHeader() {
@@ -126,19 +97,14 @@ public class ServerConnection extends Thread {
     }
 
     private int saveCalculateResult(String requestURI) {
-        // Распарсим строку http://localhost:8000/calculate?operation=add&operand1=5&operand2=10
+        // http://localhost:8000/calculate?operation=add&operand1=5&operand2=10
         String str = requestURI.substring(requestURI.indexOf("?")+1);
         String[] requestParams = str.split("&");
 
-        // Выберем тип операции
+        // Fetch operation, operand1, operand2
         String[] requestOperation = requestParams[0].split("=");
-
-        // Операнд 1
         String[] requestOperand1 = requestParams[1].split("=");
-
-        // Операнд 2
         String[] requestOperand2 = requestParams[2].split("=");
-
 
         Method classMethod = null;
         int result = 0;
@@ -148,28 +114,56 @@ public class ServerConnection extends Thread {
             int x = Integer.parseInt(requestOperand1[1]);
             int y = Integer.parseInt(requestOperand2[1]);
 
-            // установим параметры поля operand1 класса
+            // Set value for fields operand1 and operand2
             classMethod = TinyHttpCalculate.class.getMethod(requestOperand1[0], Integer.class);
-            // вызываем метод на экземпляре
             classMethod.invoke(tinyHttpCalculateClassInstance, x);
 
-            // установим параметры поля operand2 класса
             classMethod = TinyHttpCalculate.class.getMethod(requestOperand2[0], Integer.class);
-            // вызываем метод на экземпляре
             classMethod.invoke(tinyHttpCalculateClassInstance, y);
 
-            // мы получаем сам экземпляр метода
             classMethod = TinyHttpCalculate.class.getMethod(requestOperation[1]);
-            // вызываем метод расчета на экземпляре
             result = (int) classMethod.invoke(tinyHttpCalculateClassInstance);
         } catch (NoSuchMethodException e) {
-            System.out.println("Не верно указана операция " +e);
+            System.out.println("Invalid operation: " +e);
         } catch (InvocationTargetException e) {
-            System.out.println("Ошибка выполнения операции " +e);
+            System.out.println("Operation failed: " +e);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (NumberFormatException e) {
-            System.out.println("Ошибка преобразования операндов " +e);
+            System.out.println("Error convert operands: " +e);
+        }
+
+        return result;
+    }
+
+    private int saveCalculateResult8(String requestURI) {
+        // http://localhost:8000/calculate?operation=add&operand1=5&operand2=10
+        String str = requestURI.substring(requestURI.indexOf("?")+1);
+        String[] requestParams = str.split("&");
+
+        // Fetch operation, operand1, operand2
+        String[] requestOperation = requestParams[0].split("=");
+        String[] requestOperand1 = requestParams[1].split("=");
+        String[] requestOperand2 = requestParams[2].split("=");
+
+        HashMap<String,TinyHttpCalculateInterface> hm = new HashMap<String,TinyHttpCalculateInterface>();
+
+        hm.put("add", (x,y) -> x+y);
+        hm.put("sub", (x,y) -> x-y);
+        hm.put("div", (x,y) -> x/y);
+        hm.put("mul", (x,y) -> x*y);
+
+        int result = 0;
+
+        try {
+            int x = Integer.parseInt(requestOperand1[1]);
+            int y = Integer.parseInt(requestOperand2[1]);
+
+            result = hm.get(requestOperation[1]).getResult(x,y);
+        } catch (NumberFormatException e) {
+            System.out.println("Error convert operands: " +e);
+        } catch (NullPointerException e) {
+            System.out.println("Invalid operation: " +e);
         }
 
         return result;
